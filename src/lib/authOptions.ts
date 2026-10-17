@@ -81,6 +81,13 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).facultyId = token.facultyId;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      try {
+        if (new URL(url).origin === baseUrl) return url;
+      } catch {}
+      return baseUrl;
     }
   },
   pages: {
