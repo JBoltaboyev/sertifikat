@@ -20,14 +20,14 @@ export default function Login() {
       username: username.trim(),
       password: password.trim(),
       redirect: false,
+      callbackUrl: "/dashboard",
     });
 
     if (res?.error) {
       setError("Login yoki parol xato!");
       setLoading(false);
     } else {
-      router.push("/dashboard");
-      router.refresh();
+      window.location.href = "/dashboard";
     }
   };
 
