@@ -17,8 +17,8 @@ export default function Login() {
     setError("");
 
     const res = await signIn("credentials", {
-      username,
-      password,
+      username: username.trim(),
+      password: password.trim(),
       redirect: false,
     });
 
