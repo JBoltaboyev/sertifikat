@@ -6,161 +6,129 @@ import RecentCertsWidget from "./RecentCertsWidget";
 export const dynamic = "force-dynamic";
 
 async function getStats(session: any) {
-  try {
-    const userRole = session?.user?.role;
-    const userFacultyId = session?.user?.facultyId;
+  const userRole = session?.user?.role;
+  const userFacultyId = session?.user?.facultyId;
 
-    const totalStudents = await prisma.student.count({
+  const isDean = userRole === 'DEAN' && userFacultyId;
+  const facultyWhere = isDean ? { facultyId: userFacultyId } : {};
+  const studentWhere = isDean ? { student: { facultyId: userFacultyId } } : {};
+  const teacherWhere = isDean ? { teacher: { facultyId: userFacultyId } } : {};
+
+  const [
+    totalStudents,
+    totalCertificates,
+    totalTeachers,
+    allFaculties,
+    certs,
+    teacherCerts,
+    studentsList,
+    certDatesOnly,
+    teacherCertDates
+  ] = await Promise.all([
+    prisma.student.count({
       where: {
-        ...(userRole === 'DEAN' && userFacultyId ? { facultyId: userFacultyId } : {}),
-        certificates: {
-          some: {}
-        }
+        ...facultyWhere,
+        certificates: { some: {} }
       }
-    });
-    const totalStudentCertificates = await prisma.certificate.count({
-      where: userRole === 'DEAN' && userFacultyId ? { student: { facultyId: userFacultyId } } : {}
-    });
-    const totalTeacherCertificates = await prisma.teacherCertificate.count({
-      where: userRole === 'DEAN' && userFacultyId ? { teacher: { facultyId: userFacultyId } } : {}
-    });
-    const totalCertificates = totalStudentCertificates + totalTeacherCertificates;
-
-    const totalTeachers = await prisma.teacher.count({
+    }),
+    prisma.certificate.count({ where: studentWhere }),
+    prisma.teacher.count({
       where: {
-        ...(userRole === 'DEAN' && userFacultyId ? { facultyId: userFacultyId } : {}),
-        certificates: {
-          some: {}
-        }
+        ...facultyWhere,
+        certificates: { some: {} }
       }
-    });
-
-    // To calculate rank, we need cert counts per faculty.
-    const allFaculties = await prisma.faculty.findMany({
+    }),
+    prisma.faculty.findMany({
       include: {
-        students: {
-          include: {
-            certificates: true
-          }
-        },
-        teachers: {
-          include: {
-            certificates: true
-          }
-        }
+        students: { select: { certificates: { select: { id: true } } } },
+        teachers: { select: { certificates: { select: { id: true } } } }
       }
-    });
-
-    const facultiesStats = allFaculties.map(f => {
-      const certCount = f.students.reduce((acc, s) => acc + s.certificates.length, 0) + 
-                        f.teachers.reduce((acc, t) => acc + t.certificates.length, 0);
-      const studentsWithCerts = f.students.filter(s => s.certificates.length > 0).length;
-      const teachersWithCerts = f.teachers.filter(t => t.certificates.length > 0).length;
-      return {
-        id: f.id,
-        name: f.name,
-        studentsCount: studentsWithCerts,
-        teachersCount: teachersWithCerts,
-        certCount
-      };
-    }).sort((a, b) => b.certCount - a.certCount); // Sort by cert count descending
-
-    let myFacultyRank = null;
-    let myFacultyStats = null;
-    if (userRole === 'DEAN' && userFacultyId) {
-      myFacultyRank = facultiesStats.findIndex(f => f.id === userFacultyId) + 1;
-      myFacultyStats = facultiesStats.find(f => f.id === userFacultyId);
-    }
-
-    // YANGA QO'SHIMCHALAR: Turi, darajasi va tumanlar bo'yicha statistika
-    const certs = await prisma.certificate.findMany({
-      where: userRole === 'DEAN' && userFacultyId ? { student: { facultyId: userFacultyId } } : {},
+    }),
+    prisma.certificate.findMany({
+      where: studentWhere,
       select: { level: true, type: true }
-    });
-    const teacherCerts = await prisma.teacherCertificate.findMany({
-      where: userRole === 'DEAN' && userFacultyId ? { teacher: { facultyId: userFacultyId } } : {},
+    }),
+    prisma.teacherCertificate.findMany({
+      where: teacherWhere,
       select: { level: true, type: true }
-    });
-
-    const levels: Record<string, number> = {};
-    const types: Record<string, number> = {};
-
-    certs.forEach(c => {
-      const l = c.level || 'Boshqa';
-      const t = c.type || 'Boshqa';
-      levels[l] = (levels[l] || 0) + 1;
-      types[t] = (types[t] || 0) + 1;
-    });
-
-    teacherCerts.forEach(c => {
-      const l = c.level || 'Boshqa';
-      const t = c.type || 'Boshqa';
-      levels[l] = (levels[l] || 0) + 1;
-      types[t] = (types[t] || 0) + 1;
-    });
-
-    const certLevels = Object.entries(levels).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value);
-    const certTypes = Object.entries(types).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value);
-
-    // Tumanlar bo'yicha statistika (Faqat talabalar)
-    const studentsList = await prisma.student.findMany({
-      where: userRole === 'DEAN' && userFacultyId ? { facultyId: userFacultyId } : {},
+    }),
+    prisma.student.findMany({
+      where: facultyWhere,
       select: { district: true }
-    });
-
-    const dCounts: Record<string, number> = {};
-    studentsList.forEach(p => {
-      let d = p.district?.trim();
-      if (!d) d = 'Noma\'lum';
-      dCounts[d] = (dCounts[d] || 0) + 1;
-    });
-    const districtCounts = Object.entries(dCounts).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value);
-
-    const certDatesOnly = await prisma.certificate.findMany({
-      where: userRole === 'DEAN' && userFacultyId ? { student: { facultyId: userFacultyId } } : {},
+    }),
+    prisma.certificate.findMany({
+      where: studentWhere,
       select: { createdAt: true, issueDate: true }
-    });
-    const teacherCertDates = await prisma.teacherCertificate.findMany({
-      where: userRole === 'DEAN' && userFacultyId ? { teacher: { facultyId: userFacultyId } } : {},
+    }),
+    prisma.teacherCertificate.findMany({
+      where: teacherWhere,
       select: { createdAt: true, issueDate: true }
-    });
+    })
+  ]);
 
-    const parseCertDate = (issueDate: string | null, createdAt: Date): string => {
-      if (issueDate) {
-        const trimmed = issueDate.trim();
-        const dmyMatch = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
-        if (dmyMatch) {
-          const d = new Date(Number(dmyMatch[3]), Number(dmyMatch[2]) - 1, Number(dmyMatch[1]));
-          if (!isNaN(d.getTime())) return d.toISOString();
-        }
-        const d = new Date(trimmed);
-        if (!isNaN(d.getTime())) return d.toISOString();
-      }
-      return createdAt.toISOString();
+  const facultiesStats = allFaculties.map(f => {
+    const certCount = f.students.reduce((acc, s) => acc + s.certificates.length, 0) + 
+                      f.teachers.reduce((acc, t) => acc + t.certificates.length, 0);
+    const studentsWithCerts = f.students.filter(s => s.certificates.length > 0).length;
+    const teachersWithCerts = f.teachers.filter(t => t.certificates.length > 0).length;
+    return {
+      id: f.id,
+      name: f.name,
+      studentsCount: studentsWithCerts,
+      teachersCount: teachersWithCerts,
+      certCount
     };
+  }).sort((a, b) => b.certCount - a.certCount);
 
-    const allDates = [
-      ...certDatesOnly.map(c => parseCertDate(c.issueDate, c.createdAt)),
-      ...teacherCertDates.map(c => parseCertDate(c.issueDate, c.createdAt))
-    ];
-
-    return { 
-      totalStudents,
-      allDates, 
-      totalCertificates, 
-      totalTeachers,
-      faculties: userRole === 'DEAN' ? [] : facultiesStats,
-      myFacultyRank,
-      myFacultyStats,
-      userRole,
-      certLevels,
-      certTypes,
-      districtCounts
-    };
-  } catch (error) {
-    console.error("Dashboard getStats error:", error);
-    throw error;
+  let myFacultyRank = null;
+  let myFacultyStats = null;
+  if (isDean) {
+    myFacultyRank = facultiesStats.findIndex(f => f.id === userFacultyId) + 1;
+    myFacultyStats = facultiesStats.find(f => f.id === userFacultyId);
   }
+
+  const levels: Record<string, number> = {};
+  const types: Record<string, number> = {};
+
+  [...certs, ...teacherCerts].forEach(c => {
+    const l = c.level || 'Boshqa';
+    const t = c.type || 'Boshqa';
+    levels[l] = (levels[l] || 0) + 1;
+    types[t] = (types[t] || 0) + 1;
+  });
+
+  const certLevels = Object.entries(levels).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value);
+  const certTypes = Object.entries(types).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value);
+
+  const dCounts: Record<string, number> = {};
+  studentsList.forEach(p => {
+    let d = p.district?.trim();
+    if (!d) d = 'Noma\'lum';
+    dCounts[d] = (dCounts[d] || 0) + 1;
+  });
+  const districtCounts = Object.entries(dCounts).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value);
+
+  const allDates = [...certDatesOnly, ...teacherCertDates].map(c => {
+    if (c.issueDate) {
+      const d = new Date(c.issueDate);
+      if (!isNaN(d.getTime())) return d.toISOString();
+    }
+    return c.createdAt.toISOString();
+  });
+
+  return { 
+    totalStudents,
+    allDates, 
+    totalCertificates, 
+    totalTeachers,
+    faculties: isDean ? [] : facultiesStats,
+    myFacultyRank,
+    myFacultyStats,
+    userRole,
+    certLevels,
+    certTypes,
+    districtCounts
+  };
 }
 
 export default async function Dashboard() {

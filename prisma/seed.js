@@ -1,22 +1,14 @@
-require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
-const { PrismaLibSql } = require('@prisma/adapter-libsql');
-const bcrypt = require('bcryptjs');
-
-const adapter = new PrismaLibSql({ url: process.env.DATABASE_URL || 'file:./dev.db' });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 async function main() {
-  const defaultPassword = await bcrypt.hash('password123', 10);
-
   // Create faculties
   const facultiesData = [
-    'Filologiya fakulteti',
-    'Pedagogika fakulteti',
-    'Boshlang\'ich ta\'lim fakulteti',
-    'Aniq va tabiiy fanlar fakulteti',
-    'Ijtimoiy va amaliy fanlar fakulteti',
-    'Magistratura bo\'limi'
+    'Kompyuter Injiniringi',
+    'Dasturiy Injiniring',
+    'Telekommunikatsiya',
+    'Iqtisodiyot',
+    'Axborot Xavfsizligi'
   ];
 
   const faculties = [];
@@ -32,10 +24,10 @@ async function main() {
   // Create Admin
   await prisma.user.upsert({
     where: { username: 'admin' },
-    update: { password: defaultPassword },
+    update: {},
     create: {
       username: 'admin',
-      password: defaultPassword,
+      password: 'password123', // In a real app, hash this!
       role: 'ADMIN',
     }
   });
@@ -46,17 +38,17 @@ async function main() {
     const username = `dekan${i + 1}`;
     await prisma.user.upsert({
       where: { username },
-      update: { password: defaultPassword },
+      update: {},
       create: {
         username,
-        password: defaultPassword,
+        password: 'password123', // In a real app, hash this!
         role: 'DEAN',
         facultyId: faculty.id
       }
     });
   }
 
-  console.log(`Database seeded with 1 admin and ${faculties.length} deans.`);
+  console.log('Database seeded with 1 admin and 5 deans.');
 }
 
 main()

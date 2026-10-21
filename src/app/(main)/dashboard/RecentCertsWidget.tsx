@@ -5,26 +5,24 @@ import { useState } from "react";
 type TimeRange = 'all' | '1y' | '6m' | '3m' | '1m';
 
 export default function RecentCertsWidget({ certDates, totalCertificates }: { certDates: string[], totalCertificates: number }) {
-  const [range, setRange] = useState<TimeRange>('all');
+  const [range, setRange] = useState<TimeRange>('1y');
+
+  const now = new Date();
   
   const getFilteredCount = () => {
-    const total = Math.max(totalCertificates, certDates.length);
-    if (range === 'all') return total;
+    if (range === 'all') return totalCertificates;
     
-    const now = new Date();
     let cutoff = new Date();
     if (range === '1y') cutoff.setFullYear(now.getFullYear() - 1);
     else if (range === '6m') cutoff.setMonth(now.getMonth() - 6);
     else if (range === '3m') cutoff.setMonth(now.getMonth() - 3);
     else if (range === '1m') cutoff.setMonth(now.getMonth() - 1);
 
-    const filtered = certDates.filter(d => {
+    return certDates.filter(d => {
       if (!d) return false;
       const date = new Date(d);
-      return date >= cutoff;
+      return date >= cutoff && date <= now;
     }).length;
-
-    return Math.min(filtered, total);
   };
 
   const count = getFilteredCount();

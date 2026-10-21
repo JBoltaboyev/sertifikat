@@ -202,7 +202,7 @@ export default function CertificateControls({ certs, faculties, userRole }: { ce
                 </div>
                 <div className="input-group">
                   <label className="label">Tug'ilgan sana</label>
-                  <input type="date" className="input" value={formData.birthDate} onChange={e => setFormData({...formData, birthDate: e.target.value})} />
+                  <input type="text" className="input" value={formData.birthDate} onChange={e => setFormData({...formData, birthDate: e.target.value})} />
                 </div>
                 <div className="input-group">
                   <label className="label">Telefon</label>

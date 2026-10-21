@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 
 export default function Login() {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -16,18 +14,25 @@ export default function Login() {
     setLoading(true);
     setError("");
 
-    const res = await signIn("credentials", {
-      username: username.trim(),
-      password: password.trim(),
-      redirect: false,
-      callbackUrl: "/dashboard",
-    });
+    try {
+      const res = await signIn("credentials", {
+        username,
+        password,
+        redirect: false,
+      });
 
-    if (res?.error) {
-      setError("Login yoki parol xato!");
+      if (res?.error) {
+        setError("Login yoki parol xato!");
+        setLoading(false);
+      } else if (res?.ok) {
+        window.location.href = "/dashboard";
+      } else {
+        setError("Tizimga kirishda xatolik yuz berdi!");
+        setLoading(false);
+      }
+    } catch (err: any) {
+      setError(err?.message || "Tizimga kirishda xatolik yuz berdi!");
       setLoading(false);
-    } else {
-      window.location.href = "/dashboard";
     }
   };
 

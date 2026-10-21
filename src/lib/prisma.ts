@@ -1,24 +1,19 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
-import path from "path";
-
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
-
-const getDatabaseUrl = () => {
-  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
-  const dbPath = path.resolve(process.cwd(), "dev.db");
-  return `file:${dbPath}`;
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
 };
 
-const adapter = new PrismaLibSql({
-  url: getDatabaseUrl(),
-});
+function createPrismaClient() {
+  const url = process.env.DATABASE_URL || "file:./dev.db";
+  const adapter = new PrismaBetterSqlite3({ url });
+  return new PrismaClient({ adapter });
+}
 
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({ adapter });
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-
-export default prisma;
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}

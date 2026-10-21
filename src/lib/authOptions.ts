@@ -1,11 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-
-if (!process.env.NEXTAUTH_URL && process.env.VERCEL_URL) {
-  process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
-}
+import { prisma } from "./prisma";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,51 +14,22 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) return null;
 
-        try {
-          const rawUsername = credentials.username.trim();
-          const lowerUsername = rawUsername.toLowerCase();
-          const rawPassword = credentials.password.trim();
+        const user = await prisma.user.findUnique({
+          where: { username: credentials.username }
+        });
 
-          let user = await prisma.user.findFirst({
-            where: {
-              OR: [
-                { username: rawUsername },
-                { username: lowerUsername }
-              ]
-            }
-          });
+        if (!user) return null;
 
-          // Fallback if someone enters dekan1, dekan2, etc. as shown in login placeholder
-          if (!user && lowerUsername.startsWith("dekan")) {
-            const dekanIndex = parseInt(lowerUsername.replace("dekan", ""), 10) - 1;
-            const deans = await prisma.user.findMany({
-              where: { role: "DEAN" },
-              orderBy: { createdAt: "asc" }
-            });
-            if (dekanIndex >= 0 && dekanIndex < deans.length) {
-              user = deans[dekanIndex];
-            }
-          }
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
-          if (!user) return null;
+        if (!isPasswordValid) return null;
 
-          const isPasswordValid =
-            (await bcrypt.compare(rawPassword, user.password)) ||
-            (user.role === "ADMIN" && (rawPassword === "admin123" || rawPassword === "admin" || rawPassword === "password123")) ||
-            (rawPassword === "password123");
-
-          if (!isPasswordValid) return null;
-
-          return {
-            id: user.id,
-            name: user.fullName || user.username,
-            role: user.role,
-            facultyId: user.facultyId
-          };
-        } catch (error) {
-          console.error("Auth error:", error);
-          return null;
-        }
+        return {
+          id: user.id,
+          name: user.fullName || user.username,
+          role: user.role,
+          facultyId: user.facultyId
+        };
       }
     })
   ],
@@ -81,13 +48,6 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).facultyId = token.facultyId;
       }
       return session;
-    },
-    async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      try {
-        if (new URL(url).origin === baseUrl) return url;
-      } catch {}
-      return baseUrl;
     }
   },
   pages: {

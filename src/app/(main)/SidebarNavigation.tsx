@@ -10,6 +10,7 @@ export default function SidebarNavigation({ role }: { role: string }) {
     { name: "Dashboard", href: "/dashboard", roles: ["ADMIN", "DEAN"] },
     { name: "Talaba sertifikati", href: "/certificates", roles: ["ADMIN", "DEAN"] },
     { name: "O'qituvchi sertifikati", href: "/teacher-certificates", roles: ["ADMIN", "DEAN"] },
+    { name: "Akademik faoliyat", href: "/academic-activity", roles: ["ADMIN", "DEAN"] },
     { name: "Foydalanuvchilar", href: "/users", roles: ["ADMIN"] },
   ];
 

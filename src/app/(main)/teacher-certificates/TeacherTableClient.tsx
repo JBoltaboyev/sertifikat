@@ -33,22 +33,11 @@ export default function TeacherTableClient({ certs, faculties, userRole }: { cer
     issueDate: ""
   });
 
-const formatDateForInput = (str: string | null | undefined): string => {
-  if (!str) return "";
-  const trimmed = str.trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
-  const dmy = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
-  if (dmy) {
-    return `${dmy[3]}-${dmy[2].padStart(2, '0')}-${dmy[1].padStart(2, '0')}`;
-  }
-  return "";
-};
-
   const openEditModal = (cert: any) => {
     setFormData({
       fullName: cert.teacher.fullName || "",
       pinfl: cert.teacher.pinfl || "",
-      birthDate: formatDateForInput(cert.teacher.birthDate),
+      birthDate: cert.teacher.birthDate || "",
       phone: cert.teacher.phone || "",
       district: cert.teacher.district || "",
       address: cert.teacher.address || "",
@@ -58,7 +47,7 @@ const formatDateForInput = (str: string | null | undefined): string => {
       type: cert.type || "",
       level: cert.level || "",
       certNumber: cert.certNumber || "",
-      issueDate: formatDateForInput(cert.issueDate)
+      issueDate: cert.issueDate || ""
     });
     setFile(null);
     setEditingCert(cert);
@@ -382,7 +371,7 @@ const formatDateForInput = (str: string | null | undefined): string => {
                 </div>
                 <div className="input-group">
                   <label className="label">Tug'ilgan sana</label>
-                  <input type="date" className="input" value={formData.birthDate} onChange={e => setFormData({...formData, birthDate: e.target.value})} />
+                  <input type="text" className="input" value={formData.birthDate} onChange={e => setFormData({...formData, birthDate: e.target.value})} />
                 </div>
                 <div className="input-group">
                   <label className="label">Telefon</label>

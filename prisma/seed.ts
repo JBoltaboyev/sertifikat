@@ -1,10 +1,11 @@
-import 'dotenv/config'
-import { PrismaClient } from '@prisma/client'
-import { PrismaLibSql } from '@prisma/adapter-libsql'
-import bcrypt from "bcryptjs";
+import 'dotenv/config';
+import { PrismaClient } from '@prisma/client';
+import { PrismaLibSql } from '@prisma/adapter-libsql';
+import bcrypt from 'bcryptjs';
 
-const adapter = new PrismaLibSql({ url: process.env.DATABASE_URL || 'file:./dev.db' })
-const prisma = new PrismaClient({ adapter })
+const url = process.env.DATABASE_URL || 'file:./dev.db';
+const adapter = new PrismaLibSql({ url });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const defaultPassword = await bcrypt.hash('password123', 10);
@@ -54,7 +55,7 @@ async function main() {
     });
   }
 
-  console.log('Database seeded with 1 admin and 5 deans.');
+  console.log('Database seeded with 1 admin and 6 deans.');
 }
 
 main()

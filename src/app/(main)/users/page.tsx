@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import UserControls from "./UserControls";
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { redirect } from "next/navigation";

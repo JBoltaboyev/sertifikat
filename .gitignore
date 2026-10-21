@@ -49,3 +49,11 @@ next-env.d.ts
 # uploads
 /public/uploads/*/*
 !/public/uploads/**/.gitkeep
+
+# IDE & AI
+.vscode/
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
+
