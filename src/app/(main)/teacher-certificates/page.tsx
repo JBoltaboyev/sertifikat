@@ -38,7 +38,7 @@ export default async function TeacherCertificatesPage() {
 
   return (
     <div>
-      <header className="flex justify-between items-center" style={{ marginBottom: '2rem' }}>
+      <header className="flex justify-between items-center no-print" style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 600 }}>O'qituvchi Sertifikatlari</h1>
         <div className="flex items-center gap-4">
           <TeacherControls certs={certificates} faculties={faculties} userRole={userRole} />

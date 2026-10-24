@@ -205,6 +205,25 @@ export default function AcademicTableClient({
         </div>
       </div>
 
+      {/* Rasmiy Hujjat Sarlavhasi (Faqat chop etilganda chiqadi) */}
+      <div className="print-only document-header">
+        <div className="doc-institution">O'ZBEKISTON RESPUBLIKASI OLIY TA'LIM, FAN VA INNOVATSIYALAR VAZIRLIGI</div>
+        <div className="doc-subtitle">PROFESSOR-O'QITUVCHILARNING AKADEMIK FAOLIYATI (CHOP ETILGAN ADABIYOTLAR) REYESTRI</div>
+        <div className="doc-meta-grid">
+          <div><strong>Fakultet:</strong> {selectedFaculty || "Barcha fakultetlar"}</div>
+          <div><strong>Jami ro'yxatda:</strong> {filteredItems.length} ta adabiyot</div>
+          <div><strong>Sana:</strong> {new Date().toLocaleDateString('uz-UZ')}</div>
+          {(selectedType || searchQuery) && (
+            <div>
+              <strong>Qo'llangan filtr:</strong> {[
+                selectedType && `Turi: ${selectedType}`,
+                searchQuery && `Qidiruv: ${searchQuery}`
+              ].filter(Boolean).join(" | ")}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Jadval Bloki */}
       <div
         className="card glass"
@@ -227,8 +246,8 @@ export default function AcademicTableClient({
                 <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", color: "#6B7280", fontWeight: 600 }}>ADABIYOT NOMI</th>
                 <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", color: "#6B7280", fontWeight: 600 }}>TURI</th>
                 <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", color: "#6B7280", fontWeight: 600 }}>CHOP ETILGAN SANA</th>
-                <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", color: "#6B7280", fontWeight: 600, textAlign: "center" }}>FAYL</th>
-                <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", color: "#6B7280", fontWeight: 600, textAlign: "center" }}>GRIF</th>
+                <th className="no-print" style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", color: "#6B7280", fontWeight: 600, textAlign: "center" }}>FAYL</th>
+                <th className="no-print" style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", color: "#6B7280", fontWeight: 600, textAlign: "center" }}>GRIF</th>
                 <th className="no-print" style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", color: "#6B7280", fontWeight: 600, textAlign: "center" }}>AMALLAR</th>
               </tr>
             </thead>
@@ -282,7 +301,7 @@ export default function AcademicTableClient({
                     <td style={{ padding: "0.85rem 1rem", color: "#374151" }}>
                       {item.publishDate || "-"}
                     </td>
-                    <td style={{ padding: "0.85rem 1rem", textAlign: "center" }}>
+                    <td className="no-print" style={{ padding: "0.85rem 1rem", textAlign: "center" }}>
                       {item.fileUrl ? (
                         <a
                           href={item.fileUrl}
@@ -307,7 +326,7 @@ export default function AcademicTableClient({
                         <span style={{ color: "#9CA3AF" }}>-</span>
                       )}
                     </td>
-                    <td style={{ padding: "0.85rem 1rem", textAlign: "center" }}>
+                    <td className="no-print" style={{ padding: "0.85rem 1rem", textAlign: "center" }}>
                       {item.grifUrl ? (
                         <a
                           href={item.grifUrl}
@@ -353,7 +372,7 @@ export default function AcademicTableClient({
                           padding: "0.25rem 0.65rem",
                           fontSize: "0.75rem",
                           borderRadius: "0.375rem",
-                          borderColor: "#EF4444",
+                          borderColor: "#FCA5A5",
                           color: "#EF4444"
                         }}
                         onClick={() => handleDelete(item.id)}
@@ -366,6 +385,26 @@ export default function AcademicTableClient({
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Rasmiy Hujjat Tasdiqlash va Imzo Bloki (Faqat chop etilganda chiqadi) */}
+      <div className="print-only document-footer">
+        <div className="doc-signatures">
+          <div className="sig-block">
+            <div className="sig-title">Mas'ul xodim (Dekan / Prorektor):</div>
+            <div className="sig-line">__________________________ (F.I.Sh.)</div>
+            <div className="sig-hint">(imzo)</div>
+          </div>
+          <div className="sig-block">
+            <div className="sig-title">Tekshirdi (Ilmiy bo'lim):</div>
+            <div className="sig-line">__________________________ (F.I.Sh.)</div>
+            <div className="sig-hint">(imzo)</div>
+          </div>
+          <div className="sig-stamp-block">
+            <div className="sig-stamp-box">M.O'.</div>
+            <div className="sig-date">Sana: "____" ____________ 202___ y.</div>
+          </div>
         </div>
       </div>
 

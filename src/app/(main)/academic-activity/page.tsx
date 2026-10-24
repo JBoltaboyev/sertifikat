@@ -36,7 +36,7 @@ export default async function AcademicActivityPage() {
 
   return (
     <div>
-      <header className="flex justify-between items-center" style={{ marginBottom: "1.75rem" }}>
+      <header className="flex justify-between items-center no-print" style={{ marginBottom: "1.75rem" }}>
         <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--text-main)" }}>
           Akademik Faoliyat (Adabiyotlar)
         </h1>

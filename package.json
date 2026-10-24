@@ -2,11 +2,14 @@
   "name": "sertifikat",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node scripts/copy-standalone.js",
-    "start": "node .next/standalone/server.js",
-    "start:next": "next start",
+    "build": "next build",
+    "start": "next start -H 0.0.0.0",
+    "start:standalone": "node .next/standalone/server.js",
     "lint": "eslint",
     "postinstall": "prisma generate"
   },

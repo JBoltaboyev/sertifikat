@@ -12,7 +12,7 @@ export async function importCertificates(data: any[]) {
     const userRole = (session?.user as any)?.role;
     const userFacultyId = (session?.user as any)?.facultyId;
     let count = 0;
-    
+
     // Cache faculties
     const faculties = await prisma.faculty.findMany();
     let defaultFaculty = faculties[0];
@@ -23,7 +23,7 @@ export async function importCertificates(data: any[]) {
       });
       faculties.push(defaultFaculty);
     }
-    
+
     for (const row of data) {
       const pinfl = String(row["JSHSHIR yoki pasport seriyasi"] || "").trim();
       if (!pinfl) continue;
@@ -33,13 +33,13 @@ export async function importCertificates(data: any[]) {
 
       // Handle Faculty logic depending on role
       let matchedFaculty;
-      
+
       if (userRole === 'DEAN' && userFacultyId) {
         // Force the dean's faculty regardless of what the Excel says
         matchedFaculty = faculties.find(f => f.id === userFacultyId) || defaultFaculty;
       } else {
         const facultyName = String(row["Fakulteti"] || "").trim();
-        matchedFaculty = facultyName 
+        matchedFaculty = facultyName
           ? faculties.find(f => f.name.toLowerCase() === facultyName.toLowerCase())
           : defaultFaculty;
 
@@ -50,7 +50,7 @@ export async function importCertificates(data: any[]) {
           faculties.push(matchedFaculty);
         }
       }
-      
+
       const facultyId = matchedFaculty ? matchedFaculty.id : defaultFaculty.id;
 
       // Upsert Student
@@ -125,7 +125,7 @@ export async function addSingleCertificate(formData: FormData) {
     };
 
     let faculty;
-    
+
     if (userRole === 'DEAN' && userFacultyId) {
       faculty = await prisma.faculty.findUnique({
         where: { id: userFacultyId }
@@ -171,17 +171,17 @@ export async function addSingleCertificate(formData: FormData) {
 
     let fileUrl: string | undefined = undefined;
     const file = formData.get("file") as File | null;
-    
+
     if (file && file.size > 0) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const ext = path.extname(file.name) || ".pdf";
       const filename = `${data.certNumber.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}${ext}`;
       const uploadDir = path.join(process.cwd(), "public/uploads/certificates");
-      
+
       if (!fs.existsSync(uploadDir)) {
         await fs.promises.mkdir(uploadDir, { recursive: true });
       }
-      
+
       await fs.promises.writeFile(path.join(uploadDir, filename), buffer);
       fileUrl = `/uploads/certificates/${filename}`;
     }

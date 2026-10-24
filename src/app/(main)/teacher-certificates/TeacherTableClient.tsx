@@ -213,6 +213,28 @@ export default function TeacherTableClient({ certs, faculties, userRole }: { cer
         </div>
       </div>
 
+      {/* Rasmiy Hujjat Sarlavhasi (Faqat chop etilganda chiqadi) */}
+      <div className="print-only document-header">
+        <div className="doc-institution">O'ZBEKISTON RESPUBLIKASI OLIY TA'LIM, FAN VA INNOVATSIYALAR VAZIRLIGI</div>
+        <div className="doc-subtitle">PROFESSOR-O'QITUVCHILARNING CHET TILI SERTIFIKATLARI BO'YICHA MA'LUMOTNOMA (VEDOMOST)</div>
+        <div className="doc-meta-grid">
+          <div><strong>Fakultet:</strong> {selectedFaculty ? faculties.find((f: any) => f.id === selectedFaculty)?.name : "Barcha fakultetlar"}</div>
+          {selectedDepartment && <div><strong>Kafedra:</strong> {selectedDepartment}</div>}
+          <div><strong>Jami ro'yxatda:</strong> {filteredCerts.length} nafar o'qituvchi</div>
+          <div><strong>Sana:</strong> {new Date().toLocaleDateString('uz-UZ')}</div>
+          {(selectedLanguage || selectedLevel || selectedType || selectedDate) && (
+            <div>
+              <strong>Qo'llangan filtr:</strong> {[
+                selectedLanguage && `Til: ${selectedLanguage}`,
+                selectedLevel && `Daraja: ${selectedLevel}`,
+                selectedType && `Turi: ${selectedType}`,
+                selectedDate && `Sana: ${selectedDate}`
+              ].filter(Boolean).join(" | ")}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="card glass">
         <div className="card-body table-wrapper">
           <table className="table">
@@ -284,6 +306,26 @@ export default function TeacherTableClient({ certs, faculties, userRole }: { cer
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Rasmiy Hujjat Tasdiqlash va Imzo Bloki (Faqat chop etilganda chiqadi) */}
+      <div className="print-only document-footer">
+        <div className="doc-signatures">
+          <div className="sig-block">
+            <div className="sig-title">Mas'ul xodim (Dekan / Prorektor):</div>
+            <div className="sig-line">__________________________ (F.I.Sh.)</div>
+            <div className="sig-hint">(imzo)</div>
+          </div>
+          <div className="sig-block">
+            <div className="sig-title">Tekshirdi (Monitoring bo'limi):</div>
+            <div className="sig-line">__________________________ (F.I.Sh.)</div>
+            <div className="sig-hint">(imzo)</div>
+          </div>
+          <div className="sig-stamp-block">
+            <div className="sig-stamp-box">M.O'.</div>
+            <div className="sig-date">Sana: "____" ____________ 202___ y.</div>
+          </div>
         </div>
       </div>
 

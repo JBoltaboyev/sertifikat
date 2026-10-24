@@ -301,15 +301,227 @@ body {
   background-color: var(--surface-alt);
 }
 
+.print-only {
+  display: none;
+}
+
 @media print {
-  .no-print, .sidebar {
+  @page {
+    size: A4 landscape;
+    margin: 8mm 8mm 12mm 8mm;
+  }
+
+  /* Yashirish kerak bo'lgan web elementlar */
+  .no-print,
+  .sidebar,
+  header.no-print,
+  .btn,
+  nav,
+  input,
+  select,
+  button,
+  .modal,
+  [data-theme] .sidebar {
     display: none !important;
   }
-  .main-content {
-    padding: 0 !important;
+
+  /* Faqat chop etilganda ko'rinadigan rasmiy hujjat qismlari */
+  .print-only {
+    display: block !important;
   }
-  .card.glass {
-    box-shadow: none !important;
+
+  /* Sahifa va konteynerlarni rasmiy hujjat formatiga moslash */
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 8.5pt !important;
+    font-family: "Times New Roman", Times, serif, system-ui !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .layout-wrapper,
+  .main-content,
+  .card,
+  .card-body,
+  .table-wrapper {
+    display: block !important;
+    background: transparent !important;
+    background-color: transparent !important;
     border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* Rasmiy Hujjat Sarlavhasi (Header) */
+  .document-header {
+    text-align: center;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #000;
+  }
+
+  .doc-institution {
+    font-size: 9.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #000 !important;
+    margin-bottom: 3px;
+  }
+
+  .doc-subtitle {
+    font-size: 11.5pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #000 !important;
+    margin-bottom: 6px;
+  }
+
+  .doc-meta-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 8pt;
+    color: #111 !important;
+    border-top: 1px solid #444;
+    padding-top: 4px;
+    margin-top: 4px;
+  }
+
+  /* Rasmiy Hujjat Jadvali (Table) */
+  table, .table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border: 1.5px solid #000 !important;
+    margin-top: 6px !important;
+    margin-bottom: 12px !important;
+    font-size: 7.5pt !important;
+    background: #fff !important;
+  }
+
+  table thead, .table thead {
+    display: table-header-group !important;
+  }
+
+  table tr, .table tr {
+    page-break-inside: avoid !important;
+  }
+
+  table th, .table th {
+    border: 1px solid #000 !important;
+    background-color: #f2f2f2 !important;
+    color: #000 !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    padding: 3px 2px !important;
+    vertical-align: middle !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  table td, .table td {
+    border: 1px solid #000 !important;
+    color: #000 !important;
+    background-color: transparent !important;
+    padding: 2.5px 3px !important;
+    vertical-align: middle !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+  /* Badge'larni oddiy qora matnga aylantirish */
+  .badge, .badge-primary, .badge-success, .badge-danger {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #000 !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: inherit !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+  }
+
+  /* Rasmiy Hujjat Imzo va Tasdiqlash Bloki (Footer) */
+  .document-footer {
+    margin-top: 15px;
+    page-break-inside: avoid !important;
+  }
+
+  .doc-signatures {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 8.5pt;
+    color: #000 !important;
+    margin-top: 10px;
+    padding-top: 6px;
+  }
+
+  .sig-block {
+    width: 36%;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .sig-title {
+    font-weight: 600;
+  }
+
+  .sig-line {
+    margin-top: 18px;
+    border-bottom: 1px solid #000;
+    padding-bottom: 1px;
+    text-align: right;
+    font-size: 8pt;
+  }
+
+  .sig-hint {
+    font-size: 7pt;
+    text-align: center;
+    color: #444;
+  }
+
+  .sig-stamp-block {
+    width: 22%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sig-stamp-box {
+    border: 1px dashed #555;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8pt;
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 4px;
+  }
+
+  .sig-date {
+    font-size: 7.5pt;
   }
 }
+
