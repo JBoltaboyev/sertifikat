@@ -349,8 +349,8 @@ body {
 
   .layout-wrapper,
   .main-content,
-  .card,
-  .card-body,
+  .card:not(.no-print),
+  .card-body:not(.no-print),
   .table-wrapper {
     display: block !important;
     background: transparent !important;
@@ -522,6 +522,27 @@ body {
 
   .sig-date {
     font-size: 7.5pt;
+  }
+
+  /* Barcha no-print elementlar va ularning ichidagi barcha bolalari qat'iy yashiriladi */
+  .no-print,
+  .no-print *,
+  .card.no-print,
+  .card.no-print *,
+  .card-body.no-print,
+  .card-body.no-print *,
+  div.no-print,
+  div.no-print * {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
   }
 }
 

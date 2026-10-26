@@ -226,7 +226,7 @@ export default function TeacherTableClient({ certs, faculties, userRole }: { cer
 
       {/* Rasmiy Hujjat Sarlavhasi (Faqat chop etilganda chiqadi) */}
       <div className="print-only document-header">
-        <div className="doc-institution">O'ZBEKISTON RESPUBLIKASI OLIY TA'LIM, FAN VA INNOVATSIYALAR VAZIRLIGI</div>
+        <div className="doc-institution">URGANCH DAVLAT PEDAGOGIKA INSTITUTI</div>
         <div className="doc-subtitle">PROFESSOR-O'QITUVCHILARNING CHET TILI SERTIFIKATLARI BO'YICHA MA'LUMOTNOMA (VEDOMOST)</div>
         <div className="doc-meta-grid">
           <div><strong>Fakultet:</strong> {selectedFaculty ? faculties.find((f: any) => f.id === selectedFaculty)?.name : "Barcha fakultetlar"}</div>

@@ -207,7 +207,7 @@ export default function AcademicTableClient({
 
       {/* Rasmiy Hujjat Sarlavhasi (Faqat chop etilganda chiqadi) */}
       <div className="print-only document-header">
-        <div className="doc-institution">O'ZBEKISTON RESPUBLIKASI OLIY TA'LIM, FAN VA INNOVATSIYALAR VAZIRLIGI</div>
+        <div className="doc-institution">URGANCH DAVLAT PEDAGOGIKA INSTITUTI</div>
         <div className="doc-subtitle">PROFESSOR-O'QITUVCHILARNING AKADEMIK FAOLIYATI (CHOP ETILGAN ADABIYOTLAR) REYESTRI</div>
         <div className="doc-meta-grid">
           <div><strong>Fakultet:</strong> {selectedFaculty || "Barcha fakultetlar"}</div>
