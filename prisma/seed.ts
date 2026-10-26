@@ -10,11 +10,11 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   const defaultPassword = await bcrypt.hash('password123', 10);
   const facultiesData = [
+    'Aniq fanlar oliy maktabi',
     'Filologiya fakulteti',
-    'Pedagogika fakulteti',
-    'Boshlang\'ich ta\'lim fakulteti',
-    'Aniq va tabiiy fanlar fakulteti',
     'Ijtimoiy va amaliy fanlar fakulteti',
+    'Boshlang\'ich ta\'lim fakulteti',
+    'Pedagogika fakulteti',
     'Magistratura bo\'limi'
   ];
 

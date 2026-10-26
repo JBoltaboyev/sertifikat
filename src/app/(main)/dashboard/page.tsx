@@ -16,12 +16,12 @@ async function getStats(session: any) {
 
   const [
     totalStudents,
-    totalCertificates,
+    studentCertCount,
+    teacherCertCount,
     totalTeachers,
     allFaculties,
     certs,
     teacherCerts,
-    studentsList,
     certDatesOnly,
     teacherCertDates
   ] = await Promise.all([
@@ -32,6 +32,7 @@ async function getStats(session: any) {
       }
     }),
     prisma.certificate.count({ where: studentWhere }),
+    prisma.teacherCertificate.count({ where: teacherWhere }),
     prisma.teacher.count({
       where: {
         ...facultyWhere,
@@ -46,15 +47,19 @@ async function getStats(session: any) {
     }),
     prisma.certificate.findMany({
       where: studentWhere,
-      select: { level: true, type: true }
+      select: {
+        level: true,
+        type: true,
+        student: { select: { district: true } }
+      }
     }),
     prisma.teacherCertificate.findMany({
       where: teacherWhere,
-      select: { level: true, type: true }
-    }),
-    prisma.student.findMany({
-      where: facultyWhere,
-      select: { district: true }
+      select: {
+        level: true,
+        type: true,
+        teacher: { select: { district: true } }
+      }
     }),
     prisma.certificate.findMany({
       where: studentWhere,
@@ -65,6 +70,8 @@ async function getStats(session: any) {
       select: { createdAt: true, issueDate: true }
     })
   ]);
+
+  const totalCertificates = studentCertCount + teacherCertCount;
 
   const facultiesStats = allFaculties.map(f => {
     const certCount = f.students.reduce((acc, s) => acc + s.certificates.length, 0) + 
@@ -100,12 +107,23 @@ async function getStats(session: any) {
   const certLevels = Object.entries(levels).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value);
   const certTypes = Object.entries(types).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value);
 
+  const normalizeDistrict = (district: string | null | undefined): string => {
+    if (!district) return "Noma'lum";
+    const d = district.trim();
+    if (!d) return "Noma'lum";
+    return d.toLowerCase().replace(/(?:^|\s|-)\S/g, char => char.toUpperCase());
+  };
+
   const dCounts: Record<string, number> = {};
-  studentsList.forEach(p => {
-    let d = p.district?.trim();
-    if (!d) d = 'Noma\'lum';
+  certs.forEach(c => {
+    const d = normalizeDistrict(c.student?.district);
     dCounts[d] = (dCounts[d] || 0) + 1;
   });
+  teacherCerts.forEach(tc => {
+    const d = normalizeDistrict(tc.teacher?.district);
+    dCounts[d] = (dCounts[d] || 0) + 1;
+  });
+
   const districtCounts = Object.entries(dCounts).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value);
 
   const allDates = [...certDatesOnly, ...teacherCertDates].map(c => {
@@ -148,7 +166,7 @@ export default async function Dashboard() {
   const totalDistricts = districtCounts.reduce((acc, d) => acc + d.value, 0);
   let currentAngle = 0;
   const gradientStops = districtCounts.map((d, i) => {
-    const percentage = (d.value / totalDistricts) * 100;
+    const percentage = totalDistricts > 0 ? (d.value / totalDistricts) * 100 : 0;
     const color = colors[i % colors.length];
     const stop = `${color} ${currentAngle}% ${currentAngle + percentage}%`;
     currentAngle += percentage;

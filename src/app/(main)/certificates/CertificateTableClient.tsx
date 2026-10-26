@@ -30,11 +30,22 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
     issueDate: ""
   });
 
+  const formatDateForInput = (dateStr: string) => {
+    if (!dateStr) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+    const match = dateStr.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+    if (match) {
+      const [, d, m, y] = match;
+      return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+    }
+    return dateStr;
+  };
+
   const openEditModal = (cert: any) => {
     setFormData({
       fullName: cert.student.fullName || "",
       pinfl: cert.student.pinfl || "",
-      birthDate: cert.student.birthDate || "",
+      birthDate: formatDateForInput(cert.student.birthDate || ""),
       phone: cert.student.phone || "",
       district: cert.student.district || "",
       address: cert.student.address || "",
@@ -43,7 +54,7 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
       type: cert.type || "",
       level: cert.level || "",
       certNumber: cert.certNumber || "",
-      issueDate: cert.issueDate || ""
+      issueDate: formatDateForInput(cert.issueDate || "")
     });
     setFile(null);
     setEditingCert(cert);
@@ -51,7 +62,7 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const submitData = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       submitData.append(key, value);
@@ -59,7 +70,7 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
     if (file) {
       submitData.append("file", file);
     }
-    
+
     // addSingleCertificate does an upsert on pinfl and certNumber, so it acts as an edit too.
     const result = await addSingleCertificate(submitData);
     if (result.success) {
@@ -83,7 +94,7 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
 
   const filteredCerts = certs.filter(c => {
     const f1 = !selectedFaculty || c.student.faculty?.id === selectedFaculty;
-    
+
     let matchDate = true;
     if (selectedDate) {
       const rawDate = (c.issueDate || "").toLowerCase();
@@ -91,7 +102,7 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
       const query = selectedDate.toLowerCase();
       matchDate = rawDate.includes(query) || dotDate.includes(query);
     }
-    
+
     const f3 = !selectedLevel || (c.level || "").toLowerCase().includes(selectedLevel.toLowerCase());
     const f4 = !selectedType || c.type === selectedType;
     const f5 = !selectedLanguage || c.language === selectedLanguage;
@@ -107,9 +118,9 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
           {userRole === 'ADMIN' && (
             <div className="input-group" style={{ flex: 1, minWidth: '200px' }}>
               <label className="label">Fakultet</label>
-              <select 
-                className="input" 
-                value={selectedFaculty} 
+              <select
+                className="input"
+                value={selectedFaculty}
                 onChange={(e) => setSelectedFaculty(e.target.value)}
               >
                 <option value="">Barchasi</option>
@@ -121,19 +132,19 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
           )}
           <div className="input-group" style={{ flex: 1, minWidth: '150px' }}>
             <label className="label">Berilgan sana</label>
-            <input 
-              type="text" 
-              className="input" 
+            <input
+              type="text"
+              className="input"
               placeholder="Yil yoki sana (2025, 12.05)..."
-              value={selectedDate} 
+              value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
             />
           </div>
           <div className="input-group" style={{ flex: 1, minWidth: '150px' }}>
             <label className="label">Turi</label>
-            <select 
-              className="input" 
-              value={selectedType} 
+            <select
+              className="input"
+              value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
             >
               <option value="">Barchasi</option>
@@ -143,9 +154,9 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
           </div>
           <div className="input-group" style={{ flex: 1, minWidth: '150px' }}>
             <label className="label">Til</label>
-            <select 
-              className="input" 
-              value={selectedLanguage} 
+            <select
+              className="input"
+              value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
             >
               <option value="">Barchasi</option>
@@ -156,9 +167,9 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
           </div>
           <div className="input-group" style={{ flex: 1, minWidth: '150px' }}>
             <label className="label">Daraja</label>
-            <select 
-              className="input" 
-              value={selectedLevel} 
+            <select
+              className="input"
+              value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value)}
             >
               <option value="">Barchasi</option>
@@ -175,8 +186,8 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
 
       {/* Rasmiy Hujjat Sarlavhasi (Faqat chop etilganda chiqadi) */}
       <div className="print-only document-header">
-        <div className="doc-institution">O'ZBEKISTON RESPUBLIKASI OLIY TA'LIM, FAN VA INNOVATSIYALAR VAZIRLIGI</div>
-        <div className="doc-subtitle">TALABALARNING CHET TILI SERTIFIKATLARI BO'YICHA MA'LUMOTNOMA (VEDOMOST)</div>
+        <div className="doc-institution">URGANCH DAVLAT PEDAGOGIKA INSTITUTI</div>
+        <div className="doc-subtitle">TALABALARNING CHET TILI SERTIFIKATLARI BO'YICHA MA'LUMOTNOMA</div>
         <div className="doc-meta-grid">
           <div><strong>Fakultet:</strong> {selectedFaculty ? faculties.find((f: any) => f.id === selectedFaculty)?.name : "Barcha fakultetlar"}</div>
           <div><strong>Jami ro'yxatda:</strong> {filteredCerts.length} nafar talaba</div>
@@ -301,7 +312,7 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
               <form onSubmit={handleEditSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div className="input-group">
                   <label className="label">F.I.Sh</label>
-                  <input required type="text" className="input" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} />
+                  <input required type="text" className="input" value={formData.fullName} onChange={e => setFormData({ ...formData, fullName: e.target.value })} />
                 </div>
                 <div className="input-group">
                   <label className="label">JSHSHIR / Pasport</label>
@@ -310,7 +321,7 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
                 {userRole === 'ADMIN' && (
                   <div className="input-group">
                     <label className="label">Fakulteti</label>
-                    <select required className="input" value={formData.facultyName} onChange={e => setFormData({...formData, facultyName: e.target.value})}>
+                    <select required className="input" value={formData.facultyName} onChange={e => setFormData({ ...formData, facultyName: e.target.value })}>
                       <option value="">Fakultetni tanlang</option>
                       {faculties.map((f: any) => (
                         <option key={f.id} value={f.name}>{f.name}</option>
@@ -324,11 +335,11 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
                 </div>
                 <div className="input-group">
                   <label className="label">Til</label>
-                  <input required type="text" className="input" value={formData.language} onChange={e => setFormData({...formData, language: e.target.value})} />
+                  <input required type="text" className="input" value={formData.language} onChange={e => setFormData({ ...formData, language: e.target.value })} />
                 </div>
                 <div className="input-group">
                   <label className="label">Turi</label>
-                  <select required className="input" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+                  <select required className="input" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
                     <option value="">Turini tanlang</option>
                     <option value="Xalqaro">Xalqaro</option>
                     <option value="Milliy">Milliy</option>
@@ -336,7 +347,7 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
                 </div>
                 <div className="input-group">
                   <label className="label">Daraja</label>
-                  <select required className="input" value={formData.level} onChange={e => setFormData({...formData, level: e.target.value})}>
+                  <select required className="input" value={formData.level} onChange={e => setFormData({ ...formData, level: e.target.value })}>
                     <option value="">Tanlang</option>
                     <option value="A1">A1</option>
                     <option value="A2">A2</option>
@@ -348,31 +359,31 @@ export default function CertificateTableClient({ certs, faculties, userRole }: {
                 </div>
                 <div className="input-group">
                   <label className="label">Berilgan sana</label>
-                  <input type="date" className="input" value={formData.issueDate} onChange={e => setFormData({...formData, issueDate: e.target.value})} />
+                  <input type="date" className="input" value={formData.issueDate} onChange={e => setFormData({ ...formData, issueDate: e.target.value })} />
                 </div>
                 <div className="input-group">
                   <label className="label">Tug'ilgan sana</label>
-                  <input type="text" className="input" value={formData.birthDate} onChange={e => setFormData({...formData, birthDate: e.target.value})} />
+                  <input type="date" className="input" value={formData.birthDate} onChange={e => setFormData({ ...formData, birthDate: e.target.value })} />
                 </div>
                 <div className="input-group">
                   <label className="label">Telefon</label>
-                  <input type="text" className="input" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                  <input type="text" className="input" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
                 </div>
                 <div className="input-group">
                   <label className="label">Tuman / Shahar</label>
-                  <input type="text" className="input" value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} />
+                  <input type="text" className="input" value={formData.district} onChange={e => setFormData({ ...formData, district: e.target.value })} />
                 </div>
                 <div className="input-group" style={{ gridColumn: '1 / -1' }}>
                   <label className="label">Yashash manzili</label>
-                  <input type="text" className="input" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+                  <input type="text" className="input" value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
                 </div>
-                
+
                 <div className="input-group" style={{ gridColumn: '1 / -1' }}>
                   <label className="label">Sertifikat fayli (Faqat PDF, majburiy emas)</label>
                   <input type="file" className="input" accept=".pdf" onChange={e => setFile(e.target.files?.[0] || null)} />
                   {editingCert?.fileUrl && <small style={{ color: 'var(--success)', marginTop: '0.25rem' }}>Hozirgi fayl biriktirilgan.</small>}
                 </div>
-                
+
                 <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
                   <button type="button" className="btn btn-outline" onClick={() => setEditingCert(null)}>Bekor qilish</button>
                   <button type="submit" className="btn btn-primary">Saqlash</button>

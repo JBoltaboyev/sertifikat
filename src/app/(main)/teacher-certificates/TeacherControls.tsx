@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { importTeacherCertificates, addSingleTeacherCertificate } from "./actions";
 
 export const FACULTY_DEPARTMENTS: Record<string, string[]> = {
-  "Aniq va tabiiy fanlar fakulteti": [
+  "Aniq fanlar oliy maktabi": [
     "Matematika va Kompyuter texnologiyalari kafedrasi",
     "Tabiiy fanlar kafedrasi",
     "Fizika va astranomiya kafedrasi",
@@ -251,7 +251,7 @@ export default function TeacherControls({ certs, faculties, userRole }: { certs:
                 </div>
                 <div className="input-group">
                   <label className="label">Tug'ilgan sana</label>
-                  <input type="text" className="input" value={formData.birthDate} onChange={e => setFormData({...formData, birthDate: e.target.value})} />
+                  <input type="date" className="input" value={formData.birthDate} onChange={e => setFormData({...formData, birthDate: e.target.value})} />
                 </div>
                 <div className="input-group">
                   <label className="label">Telefon</label>

@@ -38,7 +38,10 @@ export async function importTeacherCertificates(data: any[]) {
         // Force the dean's faculty regardless of what the Excel says
         matchedFaculty = faculties.find(f => f.id === userFacultyId) || defaultFaculty;
       } else {
-        const facultyName = String(row["Fakulteti"] || "").trim();
+        let facultyName = String(row["Fakulteti"] || "").trim();
+        if (facultyName.toLowerCase() === "aniq va tabiiy fanlar fakulteti".toLowerCase()) {
+          facultyName = "Aniq fanlar oliy maktabi";
+        }
         matchedFaculty = facultyName 
           ? faculties.find(f => f.name.toLowerCase() === facultyName.toLowerCase())
           : defaultFaculty;
